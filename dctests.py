@@ -10,10 +10,11 @@ def test_stuffing():
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
 
     # stuffing test
-    # stuff_secret_into_carrier(secret_bytes, carrier_bytes)
-    dcutils.stuff_secret_into_carrier(secret_bytes, carrier_bytes)
+    dcutils.stuff_packet_into_carrier(secret_bytes, carrier_bytes)
     dcutils.debug_print_array_as_bits(secret_bytes)
     dcutils.debug_print_array_as_bits(carrier_bytes)
+    output = dcutils.extract_packet_from_carrier(carrier_bytes)
+    dcutils.debug_print_array_as_bits(output)
 
 
 def test_packeting():
@@ -21,4 +22,4 @@ def test_packeting():
     # byte string format = total length (4B) + msg
     key = b'Sixteen byte key'
     msg = 'the quick bronw fox jumps over the lazy dog'
-    print("msg", dcutils.extract_packet(dcutils.generate_packet(msg, key), key))
+    print("msg", dcutils.extract_msg_from_packet(dcutils.generate_packet(msg, key), key))

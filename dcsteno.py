@@ -6,7 +6,6 @@ def steno_image():
     key = b'sixteen byte key'
     msg = 'the quick brown fox jumps over the lazy dog'
 
-
     # get packet to hide in image
     secret = dcutils.generate_packet(msg, key)
 
@@ -14,7 +13,7 @@ def steno_image():
     carrier = dcimage.get_bytes_from_image('images/jojo_meme_001.png')
 
     # hide packet in image
-    dcutils.stuff_secret_into_carrier(secret, carrier)
+    dcutils.stuff_packet_into_carrier(secret, carrier)
 
     width, height = dcimage.get_image_size('images/jojo_meme_001.png')
 
