@@ -7,6 +7,7 @@
     Functions:
         steno_image(key: bytes, msg: bytes, image: str) -> bytearray
         unsteno_image(key: bytes, image: str) -> bytearray
+        calculate_max_packet_size(carrier_size: int) -> int
 '''
 import dcutils
 import dcimage
