@@ -5,6 +5,8 @@
         William Murphy
 
     Functions:
+        get_raw_bytes_from_file(filename: str) -> bytearray
+        save_bytes_to_file(filename: str, data: bytearray)
         encrypt_data(key: bytearray, data: bytearray) -> bytearray
         decrypt_data(key: bytearray, data: bytearray) -> bytearray
         generate_packet(msg: bytearray, key:bytearray) -> bytearray
