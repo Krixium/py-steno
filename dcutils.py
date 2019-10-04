@@ -17,6 +17,40 @@ import Crypto
 from Crypto import Random
 
 
+def get_raw_bytes_from_file(filename: str) -> bytearray:
+    '''Reads a file as bytes into memeory.
+
+    Args:
+        filename (str): The name of the file to read.
+
+    Returns:
+        data (bytearray): The raw data of the file. If an error occurs an empty array is returned.
+    '''
+    try:
+        file = open(filename, 'rb')
+        data = file.read()
+        file.close()
+        return data
+    except IOError as io_error:
+        print(io_error)
+        return bytearray()
+
+
+def save_bytes_to_file(filename: str, data: bytearray):
+    '''Saves a byte array to a file.
+
+    Args:
+        filename (str): The name of the file to write too.
+        data (bytearray): The data to write to the file.
+    '''
+    try:
+        file = open(filename, 'wb')
+        file.write(data)
+        file.close()
+    except IOError as io_error:
+        print(io_error)
+
+
 def encrypt_data(key: bytearray, data: bytearray) -> bytearray:
     '''Encrypts the given data with the given key using AES in CFB mode.
 
