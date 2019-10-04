@@ -19,3 +19,6 @@ try:
 
 except BufferError as buffer_error:
     print(buffer_error)
+
+except ValueError as value_error:
+    print(value_error)
