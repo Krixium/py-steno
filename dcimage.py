@@ -82,7 +82,7 @@ def get_bytes_from_image(filename: str):
 
 
 def save_bytes_to_image(arr: list, filename: str, width: int, height: int):
-    '''Saves a list of bytes as a PNG image.
+    """Saves a list of bytes as a PNG image.
 
     Args:
         arr (list): A flat array of rgb values.
@@ -90,7 +90,7 @@ def save_bytes_to_image(arr: list, filename: str, width: int, height: int):
         width (int): The width of the new image.
         height (int): The height of the new image.
 
-    '''
+    """
     image = Image.new(mode='RGB', size=(width, height))
     image.putdata(int_arr_to_rgb_arr(arr))
     image.save(filename, 'PNG')
