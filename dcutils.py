@@ -17,6 +17,16 @@
 '''
 import Crypto
 from Crypto import Random
+from Crypto import Cipher
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+
+def generate_key(size):
+    """
+    Generates a key as a byte array
+    """
+    return get_random_bytes(size)
 
 
 # this is a fingerprint to identify files that have been stenod.
