@@ -114,7 +114,6 @@ def generate_packet(msg: bytearray, key: bytearray) -> bytearray:
     """
     data = encrypt_data(key, FINGERPRINT + msg)
     length = int(len(data)).to_bytes(4, "big")
-    print("dcutils.generate_packet.length", len(data))
     return length + data
 
 
