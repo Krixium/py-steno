@@ -9,6 +9,13 @@ from dcimage import get_bytes_from_image, save_bytes_to_image, get_image_size
 
 import io
 
+def convert_image_to_byte_array(filename: str) -> bytes:
+    # Opens the secret image and converts it into bytes format
+    img = Image.open(filename)
+    img_byte_array = io.BytesIO()
+    img.save(img_byte_array, format=img.format)
+    return img_byte_array.getvalue()
+
 
 class Application(ttk.Frame):
     def __init__(self, master=None):
@@ -69,20 +76,23 @@ class Application(ttk.Frame):
         key_string = "".join(map(chr, self.key))
         self.keyvar.set(key_string)
         self.key_label["textvariable"] = self.keyvar
+        # TODO: Export the key
 
     def stego_image(self):
         if self.carrier_fname.get() == "" or self.secret_fname == "":
             return
         width, height = get_image_size(self.carrier_fname.get())
 
+
         # Opens the secret image and converts it into a byte array
-        img = Image.open(self.secret_fname.get())
-        img_byte_array = io.BytesIO()
-        img.save(img_byte_array, format=img.format)
-        img_byte_array = img_byte_array.getvalue()
+        img_byte_array = convert_image_to_byte_array(self.secret_fname.get())
 
         stenod_image = steno_image(self.key, img_byte_array, self.carrier_fname.get())
         save_bytes_to_image(stenod_image, self.stego_img_entry.get(), width, height)
+
+    def unstego_image(self):
+        pass
+
 
 
 if __name__ == '__main__':
