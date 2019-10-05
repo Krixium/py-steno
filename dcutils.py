@@ -19,6 +19,10 @@ import Crypto
 from Crypto import Random
 
 
+# this is a fingerprint to identify files that have been stenod.
+FINGERPRINT = b'DEADBEEF'
+
+
 def get_raw_bytes_from_file(filename: str) -> bytearray:
     '''Reads a file as bytes into memeory.
 
@@ -98,8 +102,9 @@ def generate_packet(msg: bytearray, key: bytearray) -> bytearray:
     Returns:
         packet (bytearray): The packet of data that can be stuffed into an image.
     '''
-    data = encrypt_data(key, msg)
+    data = encrypt_data(key, FINGERPRINT + msg)
     length = int(len(data)).to_bytes(4, 'big')
+    print('dcutils.generate_packet.length', len(data))
     return length + data
 
 
@@ -112,9 +117,17 @@ def extract_msg_from_packet(packet: bytearray, key: bytearray) -> bytearray:
 
     Returns:
         msg (str): The plaintext contained in the packet.
+
+    Raises:
+        ValueError: The input data is malformed.
     '''
     length = int.from_bytes(packet[0:4], byteorder='big')
-    return decrypt_data(key, packet[4:length + 4])
+    data = decrypt_data(key, packet[4:length + 4])
+
+    if data[0:len(FINGERPRINT)] != FINGERPRINT:
+        raise ValueError('This data is malformed. The fingerprint couldn\'t be found.')
+
+    return data[len(FINGERPRINT):]
 
 
 def get_bit_at_pos(val: bytearray, pos: int) -> int:
