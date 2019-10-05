@@ -1,4 +1,4 @@
-'''dcstego.py - Contains the high level code for the stenography process.
+"""dcstego.py - Contains the high level code for the stenography process.
 
     Authors:
         Benny Wang
@@ -9,20 +9,20 @@
         unsteno_image(key: bytes, image: str) -> bytearray
         calculate_max_packet_size(carrier_size: int) -> int
         is_carrier_format_valid(filename: str) -> bool
-'''
+"""
 import dcutils
 import dcimage
 
 
 # These are the supported input formats for carrier images.
-SUPPORTED_CARRIER_TYPES: list = ['png', 'jpg', 'jpeg', 'bmp', 'gif']
+SUPPORTED_CARRIER_TYPES: list = ["png", "jpg", "jpeg", "bmp", "gif"]
 
 # This is the supported output format of the steno'd image.
-SUPPORTED_OUTPUT_TYPE: str = 'png'
+SUPPORTED_OUTPUT_TYPE: str = "png"
 
 
 def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
-    '''Hides msg in image after encrypting it with key.
+    """Hides msg in image after encrypting it with key.
 
     Args:
         key (bytes): 16 bytes to use as the AES key.
@@ -35,7 +35,7 @@ def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
     Raises:
         BufferError: If the packet is larger than what can be carried by the image.
         ValueError: If the format of the image is not supported.
-    '''
+    """
     # check image format
     if not is_carrier_format_valid(image):
         raise ValueError("The carrier image format is not supported.")
@@ -48,7 +48,7 @@ def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
 
     # check if the packet fits inside the carrier
     if len(packet) > calculate_max_packet_size(len(carrier)):
-        raise BufferError('The packet is larger than what can be image.')
+        raise BufferError("The packet is larger than what can be image.")
 
     # hide packet in image
     dcutils.stuff_packet_into_carrier(packet, carrier)
@@ -58,7 +58,7 @@ def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
 
 
 def unsteno_image(key: bytes, image: str) -> bytearray:
-    '''Extracts the message hidden in a steno'd image.
+    """Extracts the message hidden in a steno'd image.
 
     Args:
         key (bytes): 16 bytes to use as the AES key.
@@ -69,11 +69,11 @@ def unsteno_image(key: bytes, image: str) -> bytearray:
 
     Raises:
         ValueError: If the image format is not supported.
-    '''
+    """
     # check the input image type
-    image_format = image.split('.')[-1].lower()
+    image_format = image.split(".")[-1].lower()
     if image_format != SUPPORTED_OUTPUT_TYPE:
-        raise ValueError('This image format is not supported.')
+        raise ValueError("This image format is not supported.")
 
     # get the image bytes
     carrier = dcimage.get_bytes_from_image(image)
@@ -86,28 +86,28 @@ def unsteno_image(key: bytes, image: str) -> bytearray:
 
 
 def calculate_max_packet_size(carrier_size: int) -> int:
-    '''Calculates the maximum packet size that can be stuffed into the carrier
+    """Calculates the maximum packet size that can be stuffed into the carrier
 
     Args:
         carrier_size (int): The number of bytes in the carrier.
 
     Returns:
         max_size (int): The maximum total size of the packet. This includes the length header.
-    '''
+    """
     # carrier should have 8 bytes per 1 byte of data plus 4 for the header
     return (carrier_size // 8) + 4
 
 
 def is_carrier_format_valid(filename: str) -> bool:
-    '''Checks if the carrier image type is supported.
+    """Checks if the carrier image type is supported.
 
     Args:
         filename (str): The name to check.
 
     Returns:
         True if the image type is supported, false otherwise.
-    '''
-    image_format = filename.split('.')[-1].lower()
+    """
+    image_format = filename.split(".")[-1].lower()
     for entry in SUPPORTED_CARRIER_TYPES:
         if entry == image_format:
             return True
