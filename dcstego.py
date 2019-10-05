@@ -94,6 +94,7 @@ def calculate_max_packet_size(carrier_size: int) -> int:
     Returns:
         max_size (int): The maximum total size of the packet. This includes the length header.
     '''
+    # carrier should have 8 bytes per 1 byte of data plus 4 for the header
     return (carrier_size // 8) + 4
 
 
