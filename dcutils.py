@@ -5,6 +5,7 @@
         William Murphy
 
     Functions:
+        def generate_key(size) -> bytes:
         get_raw_bytes_from_file(filename: str) -> bytearray
         save_bytes_to_file(filename: str, data: bytearray)
         encrypt_data(key: bytearray, data: bytearray) -> bytearray
@@ -22,15 +23,20 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
 
-def generate_key(size):
-    """
-    Generates a key as a byte array
-    """
-    return get_random_bytes(size)
-
 # this is a fingerprint to identify files that have been stenod.
 FINGERPRINT = b"DEADBEEF"
 
+
+def generate_key(size: int) -> bytes:
+    """Generates a key as a byte array
+
+    Args:
+        size (int): The length of bytes to generate.
+
+    Returns:
+        key (bytes): A random string of bytes.
+    """
+    return get_random_bytes(size)
 
 
 def get_raw_bytes_from_file(filename: str) -> bytearray:
