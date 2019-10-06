@@ -1,4 +1,4 @@
-'''dcutils.py - Contains utility functions for things like encryption and data processing.
+"""dcutils.py - Contains utility functions for things like encryption and data processing.
 
     Authors:
         Benny Wang
@@ -14,7 +14,7 @@
         get_bit_at_pos(val: bytearray, pos: int) -> int
         stuff_packet_into_carrier(packet: bytearray, carrier: bytearray)
         extract_packet_from_carrier(carrier: bytearray) -> bytearray
-'''
+"""
 import Crypto
 from Crypto import Random
 from Crypto import Cipher
@@ -28,18 +28,22 @@ def generate_key(size):
     """
     return get_random_bytes(size)
 
+# this is a fingerprint to identify files that have been stenod.
+FINGERPRINT = b"DEADBEEF"
+
+
 
 def get_raw_bytes_from_file(filename: str) -> bytearray:
-    '''Reads a file as bytes into memeory.
+    """Reads a file as bytes into memeory.
 
     Args:
         filename (str): The name of the file to read.
 
     Returns:
         data (bytearray): The raw data of the file. If an error occurs an empty array is returned.
-    '''
+    """
     try:
-        file = open(filename, 'rb')
+        file = open(filename, "rb")
         data = file.read()
         file.close()
         return data
@@ -49,14 +53,14 @@ def get_raw_bytes_from_file(filename: str) -> bytearray:
 
 
 def save_bytes_to_file(filename: str, data: bytearray):
-    '''Saves a byte array to a file.
+    """Saves a byte array to a file.
 
     Args:
         filename (str): The name of the file to write too.
         data (bytearray): The data to write to the file.
-    '''
+    """
     try:
-        file = open(filename, 'wb')
+        file = open(filename, "wb")
         file.write(data)
         file.close()
     except IOError as io_error:
@@ -64,7 +68,7 @@ def save_bytes_to_file(filename: str, data: bytearray):
 
 
 def encrypt_data(key: bytearray, data: bytearray) -> bytearray:
-    '''Encrypts the given data with the given key using AES in CFB mode.
+    """Encrypts the given data with the given key using AES in CFB mode.
 
     Args:
         key (bytearray): A bytearray of size 16, 24, or 32. This decides the number of rounds.
@@ -72,14 +76,14 @@ def encrypt_data(key: bytearray, data: bytearray) -> bytearray:
 
     Returns:
         cipher (bytearray): The initialization vector followed by the encrypted data.
-    '''
+    """
     init_vector = Random.new().read(Crypto.Cipher.AES.block_size)
     cipher = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CFB, init_vector)
     return init_vector + cipher.encrypt(data)
 
 
 def decrypt_data(key: bytearray, data: bytearray) -> bytearray:
-    '''Decrypts the given data with the given key using AES in CFB mode.
+    """Decrypts the given data with the given key using AES in CFB mode.
 
     Args:
         key (bytearray): A bytearray of size 16, 24, or 32. This decides the number of rounds.
@@ -87,14 +91,14 @@ def decrypt_data(key: bytearray, data: bytearray) -> bytearray:
 
     Returns:
         plaintext (bytearray): The plaintext message.
-    '''
+    """
     init_vector = bytes(data[0:16])
     cipher = Crypto.Cipher.AES.new(key, Crypto.Cipher.AES.MODE_CFB, init_vector)
     return cipher.decrypt(bytes(data[16:]))
 
 
 def generate_packet(msg: bytearray, key: bytearray) -> bytearray:
-    '''Generates a packet to stuff into an image.
+    """Generates a packet to stuff into an image.
 
     The format of the packet is:
         | len(4B) | data (len B) |
@@ -107,14 +111,14 @@ def generate_packet(msg: bytearray, key: bytearray) -> bytearray:
 
     Returns:
         packet (bytearray): The packet of data that can be stuffed into an image.
-    '''
-    data = encrypt_data(key, msg)
-    length = int(len(data)).to_bytes(4, 'big')
+    """
+    data = encrypt_data(key, FINGERPRINT + msg)
+    length = int(len(data)).to_bytes(4, "big")
     return length + data
 
 
 def extract_msg_from_packet(packet: bytearray, key: bytearray) -> bytearray:
-    '''Extracts message from the packet.
+    """Extracts message from the packet.
 
     Args:
         packet (bytearray): The incoming packet.
@@ -122,13 +126,21 @@ def extract_msg_from_packet(packet: bytearray, key: bytearray) -> bytearray:
 
     Returns:
         msg (str): The plaintext contained in the packet.
-    '''
-    length = int.from_bytes(packet[0:4], byteorder='big')
-    return decrypt_data(key, packet[4:length + 4])
+
+    Raises:
+        ValueError: The input data is malformed.
+    """
+    length = int.from_bytes(packet[0:4], byteorder="big")
+    data = decrypt_data(key, packet[4:length + 4])
+
+    if data[0:len(FINGERPRINT)] != FINGERPRINT:
+        raise ValueError("This data is malformed. The fingerprint couldn\'t be found.")
+
+    return data[len(FINGERPRINT):]
 
 
 def get_bit_at_pos(val: bytearray, pos: int) -> int:
-    '''Gets the value of the bit at the given position of the byte
+    """Gets the value of the bit at the given position of the byte
 
     Args:
         val (bytearray): The byte to extract from.
@@ -136,7 +148,7 @@ def get_bit_at_pos(val: bytearray, pos: int) -> int:
 
     Returns:
         bit (int): 1 or 0 depending on the value at the given position.
-    '''
+    """
     mask = 0xff
     if pos == 0:
         mask = 0x01
@@ -162,14 +174,14 @@ def get_bit_at_pos(val: bytearray, pos: int) -> int:
 
 
 def stuff_packet_into_carrier(packet: bytearray, carrier: bytearray):
-    '''Stuffs the packet into the carrier image. The packet is placed
+    """Stuffs the packet into the carrier image. The packet is placed
     into the image bit by bit into the least significant bit of each byte
     of the carrier image.
 
     Args:
         packet (bytearray): The packet to stuff.
         carrier (bytearray): The carrier to hold the packet.
-    '''
+    """
     i = 0
     j = 0
 
@@ -188,14 +200,14 @@ def stuff_packet_into_carrier(packet: bytearray, carrier: bytearray):
 
 
 def extract_packet_from_carrier(carrier: bytearray) -> bytearray:
-    '''Extracts the packet from the carrier image.
+    """Extracts the packet from the carrier image.
 
     Args:
         carrier (bytearray): The carrier to extract from.
 
     Returns:
         output (bytearray): The hidden packet.
-    '''
+    """
     output = bytearray()
     for i in range(0, len(carrier), 8):
         if i + 8 > len(carrier):
@@ -217,7 +229,7 @@ def extract_packet_from_carrier(carrier: bytearray) -> bytearray:
 def debug_print_array_as_bits(arr: bytearray):
     i = 0
     for num in arr:
-        print(format(num, '08b'), end=' ')
+        print(format(num, "08b"), end=" ")
         if i % 8 == 7:
             print()
         i = i + 1

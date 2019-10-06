@@ -9,6 +9,7 @@ from dcimage import get_bytes_from_image, save_bytes_to_image, get_image_size
 
 import io
 
+
 def convert_image_to_byte_array(filename: str) -> bytes:
     # Opens the secret image and converts it into bytes format
     img = Image.open(filename)
@@ -69,7 +70,6 @@ class Application(ttk.Frame):
         self.stego_img_fname.set("Enter save filename here")
         self.stego_img_entry = ttk.Entry(self.left_frame, textvariable=self.stego_img_fname)
         self.stego_img_entry.pack()
-
         self.stego_button = ttk.Button(self.left_frame, text="Hide Secret Image in Carrier Image", command=self.stego_image)
         self.stego_button.pack()
 
