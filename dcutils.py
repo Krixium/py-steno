@@ -28,9 +28,9 @@ def generate_key(size):
     """
     return get_random_bytes(size)
 
-
 # this is a fingerprint to identify files that have been stenod.
 FINGERPRINT = b"DEADBEEF"
+
 
 
 def get_raw_bytes_from_file(filename: str) -> bytearray:
