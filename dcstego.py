@@ -7,7 +7,6 @@
     Functions:
         steno_image(key: bytes, msg: bytes, image: str) -> bytearray
         unsteno_image(key: bytes, image: str) -> bytearray
-        calculate_max_packet_size(carrier_size: int) -> int
         is_carrier_format_valid(filename: str) -> bool
 """
 import dcutils
@@ -47,7 +46,7 @@ def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
     carrier = dcimage.get_bytes_from_image(image)
 
     # check if the packet fits inside the carrier
-    if len(packet) > calculate_max_packet_size(len(carrier)):
+    if len(packet) > len(carrier) // 8:
         raise BufferError("The packet is larger than what can be image.")
 
     # hide packet in image
@@ -83,19 +82,6 @@ def unsteno_image(key: bytes, image: str) -> bytearray:
 
     # return the bytes that were extracted from the image
     return dcutils.extract_msg_from_packet(packet, key)
-
-
-def calculate_max_packet_size(carrier_size: int) -> int:
-    """Calculates the maximum packet size that can be stuffed into the carrier
-
-    Args:
-        carrier_size (int): The number of bytes in the carrier.
-
-    Returns:
-        max_size (int): The maximum total size of the packet. This includes the length header.
-    """
-    # carrier should have 8 bytes per 1 byte of data plus 4 for the header
-    return (carrier_size // 8) + 4
 
 
 def is_carrier_format_valid(filename: str) -> bool:
