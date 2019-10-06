@@ -229,15 +229,3 @@ def extract_packet_from_carrier(carrier: bytearray) -> bytearray:
         value += (carrier[i + 7] & 0x01) << 7
         output.append(value)
     return output
-
-
-# TODO: remove when done
-def debug_print_array_as_bits(arr: bytearray):
-    i = 0
-    for num in arr:
-        print(format(num, "08b"), end=" ")
-        if i % 8 == 7:
-            print()
-        i = i + 1
-    print()
-    print()
