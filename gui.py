@@ -24,6 +24,15 @@ def convert_image_to_byte_array(filename: str) -> bytes:
     return img_byte_array.getvalue()
 
 
+def load_key_file(key_fname: StringVar, key_label: ttk.Label):
+    key_fname.set(filedialog.askopenfilename())
+    key_in_byte_format = get_raw_bytes_from_file(key_fname.get())
+    key_string = "".join(map(chr, key_in_byte_format))
+    key_fname.set(key_string)
+    key_label["textvariable"] = key_fname
+    return key_in_byte_format
+
+
 class Application(ttk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -39,7 +48,8 @@ class Application(ttk.Frame):
         self.decrypt_key_fname = StringVar()
         self.decrypt_key_file_label = ttk.Label(self.right_frame, textvariable=self.decrypt_key_fname)
         self.decrypt_key_file_label.pack()
-        self.choose_decrypt_key_btn = ttk.Button(self.right_frame, text="Load decryption key file", command=self.load_decryption_key_file)
+        self.choose_decrypt_key_btn = ttk.Button(self.right_frame, text="Load decryption key file",
+                                                 command=self.load_decryption_key_file)
         self.choose_decrypt_key_btn.pack()
 
         self.hidden_fname = StringVar()
@@ -54,36 +64,37 @@ class Application(ttk.Frame):
 
         # Defining class members related to key generation
         self.encryption_key = 1
+        self.decryption_key = 1
 
         self.encrypt_key_fname = StringVar()
-        self.encrypt_key_fname.set("Key not loaded")
+        self.encrypt_key_fname.set("keyfile")
         self.encrypt_key_label = ttk.Label(self.left_frame, textvariable=self.encrypt_key_fname)
         self.encrypt_key_label.pack()
         self.encrypt_key_label["textvariable"] = self.encrypt_key_fname
-        self.choose_encrypt_key_button = ttk.Button(self.left_frame, text="Load encryption key file", command=self.load_encryption_key_file)
+        self.choose_encrypt_key_button = ttk.Button(self.left_frame, text="Load encryption key file",
+                                                    command=self.load_encryption_key_file)
         self.choose_encrypt_key_button.pack()
 
         # Defining class members related to the carrier image
         self.carrier_fname = StringVar()
-        self.carrier_fname.set("images/jojo_meme_001.png")
         self.carrier_label = ttk.Label(self.left_frame, textvariable=self.carrier_fname)
         self.carrier_label.pack()
-        self.carrier_image_button = ttk.Button(self.left_frame, text="Choose carrier image", command=self.load_carrier_file)
+        self.carrier_image_button = ttk.Button(self.left_frame, text="Choose carrier image",
+                                               command=self.load_carrier_file)
         self.carrier_image_button.pack()
 
         # Class members related to the secret image
         self.secret_fname = StringVar()
-        self.secret_fname.set("images/jojo_meme_002.png")
         self.secret_label = ttk.Label(self.left_frame, textvariable=self.secret_fname)
         self.secret_label.pack()
-        self.secret_image_button = ttk.Button(self.left_frame, text="Choose secret image", command=self.load_secret_file)
+        self.secret_image_button = ttk.Button(self.left_frame, text="Choose secret to hide",
+                                              command=self.load_secret_file)
         self.secret_image_button.pack()
 
         self.stego_img_fname = StringVar()
         self.stego_img_fname.set("Enter save filename here")
-        self.stego_img_entry = ttk.Entry(self.left_frame, textvariable=self.stego_img_fname)
-        self.stego_img_entry.pack()
-        self.stego_button = ttk.Button(self.left_frame, text="Hide secret image in carrier image", command=self.steno_image)
+        self.stego_button = ttk.Button(self.left_frame, text="Hide secret image in carrier image",
+                                       command=self.steno_image)
         self.stego_button.pack()
 
     def load_carrier_file(self):
@@ -96,20 +107,10 @@ class Application(ttk.Frame):
         open_file_and_update_label(self.hidden_fname, self.hidden_label)
 
     def load_encryption_key_file(self):
-        self.encrypt_key_fname.set(filedialog.askopenfilename())
-        key_in_byte_format = get_raw_bytes_from_file(self.encrypt_key_fname.get())
-        key_string = "".join(map(chr, key_in_byte_format))
-        self.encrypt_key_fname.set(key_string)
-        self.encrypt_key_label["textvariable"] = self.encrypt_key_fname
+        self.encryption_key = load_key_file(self.encrypt_key_fname, self.encrypt_key_label)
 
     def load_decryption_key_file(self):
-        self.decrypt_key_fname.set(filedialog.askopenfilename())
-        key_in_byte_format = get_raw_bytes_from_file(self.decrypt_key_fname.get())
-        key_string = "".join(map(chr, key_in_byte_format))
-        self.decrypt_key_fname.set(key_string)
-        self.decrypt_key_file_label["textvariable"] = self.decrypt_key_fname
-
-        pass
+        self.decryption_key = load_key_file(self.decrypt_key_fname, self.decrypt_key_file_label)
 
     def generate_key(self):
         self.encryption_key = generate_key(16)
@@ -118,22 +119,21 @@ class Application(ttk.Frame):
         self.encrypt_key_label["textvariable"] = self.encrypt_key_fname
 
     def steno_image(self):
-        if self.carrier_fname.get() == "" or self.secret_fname == "":
-            return
-        width, height = get_image_size(self.carrier_fname.get())
-
-        # Opens the secret image and converts it into a byte array
         img_byte_array = get_raw_bytes_from_file(self.secret_fname.get())
-
         stenod_image = steno_image(self.encryption_key, img_byte_array, self.carrier_fname.get())
-        save_bytes_to_image(stenod_image, self.stego_img_entry.get(), width, height)
+        options = {'defaultextension': ".bmp", 'filetypes': [("PNG files", ".png"), ("BMP files", ".bmp")],
+                   'title': "Save carrier image embedded with secret as"}
+        stenod_img_filename = filedialog.asksaveasfilename(**options)
+        width, height = get_image_size(self.carrier_fname.get())
+        save_bytes_to_image(stenod_image, stenod_img_filename, width, height)
 
     def unsteno_image(self):
         hidden = self.hidden_fname.get()
-        width, height = get_image_size(hidden)
-        img_byte_array = get_raw_bytes_from_file(hidden)
-        extracted_secret = unsteno_image(self.encryption_key, hidden)
-        save_bytes_to_file("images/output.png", extracted_secret)
+        extracted_secret = unsteno_image(self.decryption_key, hidden)
+        options = {'filetypes': [("PNG files", "*.png"), ("All files", "*.*")],
+                   'title': "Save extracted secret as"}
+        extracted_secret_file = filedialog.asksaveasfilename(**options)
+        save_bytes_to_file(extracted_secret_file, extracted_secret)
 
 
 if __name__ == '__main__':
