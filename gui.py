@@ -120,7 +120,11 @@ class Application(ttk.Frame):
 
     def steno_image(self):
         img_byte_array = get_raw_bytes_from_file(self.secret_fname.get())
-        stenod_image = steno_image(self.encryption_key, img_byte_array, self.carrier_fname.get())
+        try:
+            stenod_image = steno_image(self.encryption_key, img_byte_array, self.carrier_fname.get())
+        except BufferError as e:
+            messagebox.showerror("Error", e.args)
+            return
         options = {'defaultextension': ".bmp", 'filetypes': [("PNG files", ".png"), ("BMP files", ".bmp")],
                    'title': "Save carrier image embedded with secret as"}
         stenod_img_filename = filedialog.asksaveasfilename(**options)
@@ -131,8 +135,8 @@ class Application(ttk.Frame):
         hidden = self.hidden_fname.get()
         try:
             extracted_secret = unsteno_image(self.decryption_key, hidden)
-        except ValueError:
-            messagebox.showerror("Error", "Invalid Image Format")
+        except ValueError as e:
+            messagebox.showerror("Error", e.args)
             return
         options = {'filetypes': [("PNG files", "*.png"), ("All files", "*.*")],
                    'title': "Save extracted secret as"}
