@@ -40,7 +40,7 @@ def generate_key(size: int) -> bytes:
 
 
 def get_raw_bytes_from_file(filename: str) -> bytearray:
-    """Reads a file as bytes into memeory.
+    """Reads a file as bytes into memory.
 
     Args:
         filename (str): The name of the file to read.
