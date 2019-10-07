@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 
 from PIL import ImageTk, Image
 
@@ -129,7 +129,11 @@ class Application(ttk.Frame):
 
     def unsteno_image(self):
         hidden = self.hidden_fname.get()
-        extracted_secret = unsteno_image(self.decryption_key, hidden)
+        try:
+            extracted_secret = unsteno_image(self.decryption_key, hidden)
+        except ValueError:
+            messagebox.showerror("Error", "Invalid Image Format")
+            return
         options = {'filetypes': [("PNG files", "*.png"), ("All files", "*.*")],
                    'title': "Save extracted secret as"}
         extracted_secret_file = filedialog.asksaveasfilename(**options)
