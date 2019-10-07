@@ -11,7 +11,6 @@
         save_bytes_to_image(arr: list, filename: str, width: int, height: int)
 """
 from PIL import Image
-import dcstego
 
 
 def int_arr_to_rgb_arr(arr: list) -> list:
@@ -91,6 +90,7 @@ def save_bytes_to_image(arr: list, filename: str, width: int, height: int):
         width (int): The width of the new image.
         height (int): The height of the new image.
     """
+    fmt = filename.split('.')[-1].upper()
     image = Image.new(mode="RGB", size=(width, height))
     image.putdata(int_arr_to_rgb_arr(arr))
-    image.save(filename, dcstego.SUPPORTED_OUTPUT_TYPE.upper())
+    image.save(filename, fmt)

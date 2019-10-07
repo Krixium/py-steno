@@ -17,7 +17,7 @@ import dcimage
 SUPPORTED_CARRIER_TYPES: list = ["png", "jpg", "jpeg", "bmp", "gif"]
 
 # This is the supported output format of the steno'd image.
-SUPPORTED_OUTPUT_TYPE: str = "png"
+SUPPORTED_OUTPUT_TYPE: list = ["png", "bmp"]
 
 
 def steno_image(key: bytes, msg: bytes, image: str) -> bytearray:
@@ -71,7 +71,7 @@ def unsteno_image(key: bytes, image: str) -> bytearray:
     """
     # check the input image type
     image_format = image.split(".")[-1].lower()
-    if image_format != SUPPORTED_OUTPUT_TYPE:
+    if not image_format in SUPPORTED_OUTPUT_TYPE:
         raise ValueError("This image format is not supported.")
 
     # get the image bytes
